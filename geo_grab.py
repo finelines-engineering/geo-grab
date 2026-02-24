@@ -39,11 +39,11 @@ def dms_to_dd(d: float, m: float, s: float, b: Literal['N', 'S', 'E', 'W']) -> f
         >>> dms_to_dd(95, 12, 100, 'E')
         95.22777777777777
     """
-    dd = float(d) + float(m)/60 + float(s)/3600
+    dd = float(d) + float(m) / 60 + float(s) / 3600
     if b in 'NE':
         return dd
     else:
-        return -1*dd
+        return -1 * dd
 
 
 # TODO: Add a docstring to this function
@@ -51,7 +51,9 @@ def get_geo_exif(img: Path, o: bool) -> None:
     i = Image.open(str(img))
     print(img.name)
     try:
-        lat_dir, (lat_d, lat_m, lat_s), lon_dir, (lon_d, lon_m, lon_s) = i.getexif().get_ifd(34853).values()
+        lat_dir, (lat_d, lat_m, lat_s), lon_dir, (lon_d, lon_m, lon_s) = (
+            i.getexif().get_ifd(34853).values()
+        )
     except Exception:
         print('\tFailed to get Exif')
         return
@@ -63,7 +65,7 @@ def get_geo_exif(img: Path, o: bool) -> None:
     with open(img.with_suffix('.url'), 'wt') as u_file:
         u_file.write('[InternetShortcut]\n')
         u_file.write(f'URL={url}\n')
-    print('\t'f'{lat_d}°{lat_m}\'{lat_s}"{lat_dir}, {lon_d}°{lon_m}\'{lon_s}"{lon_dir}')
+    print(f'\t{lat_d}°{lat_m}\'{lat_s}"{lat_dir}, {lon_d}°{lon_m}\'{lon_s}"{lon_dir}')
 
 
 # TODO: Allow other image formats?
@@ -76,10 +78,12 @@ def main(folder: Path, o: bool):
 if __name__ == '__main__':
     parser = ArgumentParser('GeoTag Getter')
     parser.add_argument('directory', help='Image directory to geolocate')
-    parser.add_argument('-o', '--open', 
-                        action='store_true', 
-                        default=False, 
-                        help='Open a Google Maps browser tab for each image location',
+    parser.add_argument(
+        '-o',
+        '--open',
+        action='store_true',
+        default=False,
+        help='Open a Google Maps browser tab for each image location',
     )
     if not HAS_PIL:
         # TODO: Handle PIL not being installed (accept a command line flag for installation)
