@@ -49,33 +49,50 @@ def dms_to_dd(d: float, m: float, s: float, b: Literal['N', 'S', 'E', 'W']) -> f
 # TODO: Add a docstring to this function
 def get_geo_exif(img: Path, o: bool) -> None:
     i = Image.open(str(img))
+    
+    # TODO: Hide behind --verbose flag
     print(img.name)
+    
+    # TODO: Use a cleaner method of getting the tag info. There are documented methods 
+    # in PIL for accessing nested EXIF tags https://pillow.readthedocs.io/en/latest/reference/Image.html#PIL.Image.Exif
     try:
         lat_dir, (lat_d, lat_m, lat_s), lon_dir, (lon_d, lon_m, lon_s) = (
             i.getexif().get_ifd(34853).values()
         )
+        
+    # TODO: Narrow Exception Handling (or remove altogether) and provide logging/printing only when --verbose is set
     except Exception:
         print('\tFailed to get Exif')
         return
+    
     lat = dms_to_dd(lat_d, lat_m, lat_s, lat_dir)
     lon = dms_to_dd(lon_d, lon_m, lon_s, lon_dir)
+    
+    # TODO: Allow opening in other webmap services?
     url = f'https://www.google.com/maps/search/?api=1&query={lat},{lon}'
     if o:
         webbrowser.open(url)
+    
+    # TODO: Move this to a seperate function and allow exporting in other formats
+    # each format should have its own function and be exposed as a flag to the ArgumentParser
     with open(img.with_suffix('.url'), 'wt') as u_file:
         u_file.write('[InternetShortcut]\n')
         u_file.write(f'URL={url}\n')
+    
+    # TODO: Hide this behind a --verbose/-v flag in the ArgumentParser
     print(f'\t{lat_d}°{lat_m}\'{lat_s}"{lat_dir}, {lon_d}°{lon_m}\'{lon_s}"{lon_dir}')
 
 
-# TODO: Allow other image formats?
 def main(folder: Path, o: bool):
+    # TODO: Allow other image formats?
     for img in folder.glob('*.jp*g'):
         get_geo_exif(img, o)
 
 
-# TODO: Add a flag for toggling .url file export
 if __name__ == '__main__':
+    # TODO: Add a flag for toggling .url file export
+    # TODO: Add --verbose flag
+    # TODO: Add service options (google, osm, shapefile, kml, etc.)
     parser = ArgumentParser('GeoTag Getter')
     parser.add_argument('directory', help='Image directory to geolocate')
     parser.add_argument(
