@@ -16,6 +16,20 @@ except (ModuleNotFoundError, ImportError):
 HAS_PIL = 'PIL' in sys.modules
 
 
+# Internal type aliases
+type GPSInfo = dict[int, Any]
+type Latitude = float
+type Longitude = float
+type Coordinates = tuple[Latitude, Longitude]
+type PointInfo = list[tuple[Path, Coordinates, float, str]]
+
+# Literal options
+Service = Literal['google', 'osm', 'apple', 'bing']
+Services: tuple[Service, ...] = get_args(Service)
+Format = Literal['shp', 'kml']
+Formats: tuple[Format, ...] = get_args(Format)
+
+
 def _install_pillow():
     print(f'installing PIL for {sys.executable}')
     subprocess.run([sys.executable, '-m', 'pip', 'install', 'pillow'])
