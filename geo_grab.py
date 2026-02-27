@@ -309,40 +309,52 @@ if __name__ == '__main__':
         action='store_true',
     )
     parser.add_argument(
+        '-n',
+        '--name',
+        help='If populated, use this as the default name for outputs instead of `output`',
+    )
+    parser.add_argument(
+        '--services',
+        help=f'Optional webmap service to use for location',
+        nargs='+',
+        choices=Services,
+        default=['google'],
+        type=str,
+    )
+    out_group = parser.add_argument_group('Output file flags', 'Specify a name using `-n [NAME]` or -<flag> [NAME]')
+    out_group.add_argument(
         '-k',
         '--kml',
         help='If populated, write a kml file with the given name',
         type=str,
-        default=None,
+        nargs='?',
+        default='output',
     )
-    parser.add_argument(
+    out_group.add_argument(
         '-z',
         '--kmz',
         help='If populated, write a kmz file with the given name',
         type=str,
-        default=None,
+        nargs='?',
+        default='output',
     )
-    parser.add_argument(
+    out_group.add_argument(
         '-g',
         '--geojson',
         help='If populated, write a geojson file with the given name',
         type=str,
-        default=None,
+        nargs='?',
+        default='output',
     )
-    parser.add_argument(
+    out_group.add_argument(
         '-c',
         '--csv',
         help='If populated, write a csv file with the given name',
         type=str,
-        default=None,
+        nargs='?',
+        default='output',
     )
-    parser.add_argument(
-        '--services',
-        help=f'Optional webmap service to use for location [{Services}]',
-        nargs='+',
-        default=['google'],
-        type=str,
-    )
+
     if not HAS_PIL:
         parser.add_argument(
             '-i',
@@ -363,8 +375,10 @@ if __name__ == '__main__':
         sys.exit(1)
 
     services: tuple[Service, ...] = tuple(args.services) if 'all' not in args.services else Services
+    name = args.name
     main(
         Path(args.directory),
+        
         # Flags
         args.verbose,
         args.open,
@@ -373,8 +387,8 @@ if __name__ == '__main__':
         args.url,        
         services,
         
-        args.kml,
-        args.kmz,
-        args.geojson,
-        args.csv,
+        name or args.kml,
+        name or args.kmz,
+        name or args.geojson,
+        name or args.csv,
     )
